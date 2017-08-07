@@ -43,6 +43,8 @@ setup(
     ],
 
     entry_points={
-        # 'console_scripts': [ 'sample=sample:main', ],
+        'console_scripts': [
+            'srm = srm.__main__:main',
+        ],
     },
 )

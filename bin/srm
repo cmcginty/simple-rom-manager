@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# Generic wrapper script that will enable and execute the python module
+# matching the scripts name.
+
+NAME=$(basename $0)
+
+if [ -z ${VIRTUAL_ENV+x} ]; then
+   source $HOME/.pyenv/versions/$NAME/bin/activate
+fi
+
+exec python -m $NAME $@

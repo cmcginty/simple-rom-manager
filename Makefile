@@ -1,7 +1,7 @@
 .PHONY: all clean dist help init install lint pylintrc requirements test \
 	upgrade-requiements
 
-SOURCES := setup.py
+SOURCES := setup.py srm/
 PYLINT_ARGS :=
 PEP8_ARGS := --max-line-length=100
 
