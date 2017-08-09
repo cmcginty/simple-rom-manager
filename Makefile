@@ -1,4 +1,4 @@
-.PHONY: all clean dist help init install lint pylintrc requirements test \
+.PHONY: all clean dist help init lint pylintrc requirements test \
 	upgrade-requiements
 
 SOURCES := setup.py srm/
@@ -20,7 +20,7 @@ help:
 	@echo '  -------------'
 	@echo '  init                  Reset dependencies to specified versions'
 	@echo '  requirements          Freeze all dependencies to requirements.txt'
-	@echo '  upgrade-requirements  Upgrade all depdendencies versions; run "make init" to install'
+	@echo '  upgrade-requirements  Upgrade all depdendencies versions; run "make init" to install them'
 	@echo '  pylintrc              Upgrade auto-generated pylintrc'
 
 init:
@@ -50,10 +50,6 @@ clean:
 
 dist:
 	python3 setup.py sdist
-
-install:
-	python3 setup.py install
-	if ! [ -z $${VIRTUAL_ENV+x} ]; then pyenv rehash; fi
 
 # NOTE: sponge can be installed from "moreutils" package
 pylintrc:
