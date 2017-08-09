@@ -6,3 +6,4 @@
 #
 attrs==17.2.0
 boltons==17.1.0
+click==6.7
