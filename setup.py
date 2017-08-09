@@ -38,8 +38,17 @@ setup(
     # PyPi info
     classifiers=[
         'Development Status :: 3 - Alpha',
+        'Intended Audience :: End Users/Desktop',
         'License :: OSI Approved :: MIT License',
+        'Natural Language :: English',
+        'Operating System :: MacOS :: MacOS X',
+        'Operating System :: POSIX :: Linux',
         'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: Implementation :: CPython',
+        'Topic :: Games/Entertainment',
+        'Topic :: System :: Archiving :: Compression',
+        'Topic :: System :: Archiving',
+        'Topic :: Utilities',
     ],
 
     entry_points={
