@@ -6,6 +6,6 @@ import click
 
 
 @click.command(name='status')
-def cli():
+def cli() -> None:
     """Show ROM state and info."""
     click.echo('temp status')

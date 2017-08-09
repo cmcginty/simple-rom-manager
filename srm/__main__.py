@@ -12,7 +12,7 @@ from . import __version__, status
 
 @click.group()
 @click.version_option(__version__)
-def cli():
+def cli() -> None:
     """Main command-line entry method."""
 
 

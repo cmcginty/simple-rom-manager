@@ -29,7 +29,7 @@ init:
 	pip-sync dev-requirements.txt requirements.txt
 
 requirements:
-	pip-compile setup.py --output-file requirements.txt
+	PYTHONPATH=. pip-compile setup.py --output-file requirements.txt
 	pip-compile dev-requirements.in
 
 upgrade-requirements:
@@ -37,7 +37,7 @@ upgrade-requirements:
 	pip-compile -U dev-requirements.in
 
 .DEFAULT_GOAL := all
-all: test lint
+all: test lint mypy
 
 test:
 
@@ -45,8 +45,11 @@ lint:
 	pep8 ${PEP8_ARGS} ${SOURCES}
 	pylint ${PYLINT_ARGS} ${SOURCES}
 
+mypy:
+	mypy --strict ${SOURCES}
+
 clean:
-	- rm -r dist/ *.egg-info/
+	- rm -r dist/ *.egg-info/ .mypy_cache
 
 dist:
 	python3 setup.py sdist
