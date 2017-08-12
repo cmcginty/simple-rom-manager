@@ -35,7 +35,7 @@ requirements:
 
 .PHONY: upgrade-requirements
 upgrade-requirements:
-	pip-compile -U setup.py --output-file requirements.txt
+	PYTHONPATH=. pip-compile -U setup.py --output-file requirements.txt
 	pip-compile -U dev-requirements.in
 
 .PHONY: all

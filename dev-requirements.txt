@@ -13,4 +13,4 @@ pep8==1.7.0
 pylint==1.7.2
 six==1.10.0               # via astroid, pylint
 typed-ast==1.0.4          # via mypy
-wrapt==1.10.10            # via astroid
+wrapt==1.10.11            # via astroid
