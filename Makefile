@@ -9,18 +9,18 @@ help:
 	@echo
 	@echo '  CI/CD Workflow'
 	@echo '  --------------'
-	@echo '  all                   Run all test/lint cycle'
-	@echo '  test                  Run unit/integration tests'
-	@echo '  lint                  Run linters'
-	@echo '  dist                  Build PyPi distribution'
-	@echo '  clean                 Remove temp files'
+	@echo '  all            Run all test/lint cycle'
+	@echo '  test           Run unit/integration tests'
+	@echo '  lint           Run linters'
+	@echo '  dist           Build PyPi distribution'
+	@echo '  clean          Remove temp files'
 	@echo
 	@echo '  Dev Workspace'
 	@echo '  -------------'
-	@echo '  init                  Reset dependencies to specified versions'
-	@echo '  requirements          Freeze all dependencies to requirements.txt'
-	@echo '  upgrade-requirements  Upgrade all depdendencies versions; run "make init" to install them'
-	@echo '  pylintrc              Upgrade auto-generated pylintrc'
+	@echo '  init           Reset dependencies to specified versions'
+	@echo '  deps           Freeze all dependencies to requirements.txt'
+	@echo '  deps-upgrade   Upgrade all depdendencies versions; run "make init" to install them'
+	@echo '  pylintrc       Upgrade auto-generated pylintrc'
 
 .PHONY: init
 init:
@@ -28,13 +28,13 @@ init:
 	pip install --upgrade pip-tools
 	pip-sync dev-requirements.txt requirements.txt
 
-.PHONY: requirements
-requirements:
+.PHONY: deps
+deps:
 	PYTHONPATH=. pip-compile setup.py --output-file requirements.txt
 	pip-compile dev-requirements.in
 
-.PHONY: upgrade-requirements
-upgrade-requirements:
+.PHONY: deps-upgrade
+deps-upgrade:
 	PYTHONPATH=. pip-compile -U setup.py --output-file requirements.txt
 	pip-compile -U dev-requirements.in
 

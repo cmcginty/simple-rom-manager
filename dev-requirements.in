@@ -1,3 +1,4 @@
 mypy
 pep8
 pylint
+pypandoc

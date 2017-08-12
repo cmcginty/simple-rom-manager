@@ -32,8 +32,11 @@ def version() -> str:
 
 def long_description() -> str:
     """Get the long description from the README file."""
-    with open(os.path.join(CWD, 'README.md'), encoding='utf-8') as f:
-        return f.read()
+    try:
+        import pypandoc  # type: ignore
+        return str(pypandoc.convert('README.md', 'rst'))
+    except (IOError, ImportError) as ex:
+        raise Exception('Error converting README.md') from ex
 
 AUTHOR = srm.__author__
 EMAIL = srm.__email__
