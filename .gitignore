@@ -5,3 +5,6 @@ __pycache__/
 /.mypy_cache/
 /build/
 /dist/
+
+# auto-generated
+/srm/_version.py

@@ -8,7 +8,7 @@ If you're into collection ROMs for old game consoles you may be aware there are 
 
 Simple ROM Manager (SRM) can be used to quickly manage ROMs you have collected and tell you what is good, bad, and missing.
 
-== Feature
+== Features
 
 * NONE
 
