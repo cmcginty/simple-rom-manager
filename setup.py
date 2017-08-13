@@ -1,33 +1,13 @@
 """A setuptools based setup module.
 
 See:
-    https://packaging.python.org/en/latest/distributing.html
-    https://github.com/pypa/sampleproject
+https://packaging.python.org/en/latest/distributing.html
+https://github.com/pypa/sampleproject
 """
-
-import os.path
-import subprocess
 
 from setuptools import setup, find_packages  # type: ignore
 
 import srm
-
-CWD = os.path.abspath(os.path.dirname(__file__))
-
-
-def version() -> str:
-    """Export version from git and store to the package dir."""
-    ver = 'unknown'
-    try:
-        raw = subprocess.check_output(["git", "describe", "--tags"])
-        ver = raw.decode('utf-8').strip()
-        ver = ver.rsplit('-', 1)[0]  # remove git hash
-    except subprocess.CalledProcessError:
-        pass
-    with open('srm/_version.py', 'w') as f:
-        print('"""Auto-generated version file from setup.py"""', file=f)
-        print(f'__version__ = "{ver}"', file=f)
-    return ver
 
 
 def long_description() -> str:
@@ -35,24 +15,25 @@ def long_description() -> str:
     try:
         import pypandoc  # type: ignore
         return str(pypandoc.convert('README.md', 'rst'))
-    except (IOError, ImportError) as ex:
-        raise Exception('Error converting README.md') from ex
+    except Exception:  # pylint: disable=broad-except
+        return open('README.md').read()
 
+NAME = srm.__long_name__
+VERSION = srm.__version__
 AUTHOR = srm.__author__
 EMAIL = srm.__email__
-NAME = srm.__long_name__
+DESCRIPTION = srm.__doc__.strip()
 URL = srm.__url__
-VERSION = version()
 
 setup(
     name=NAME,
     author=AUTHOR,
     author_email=EMAIL,
-    description=srm.__doc__.strip(),
+    description=DESCRIPTION,
     long_description=long_description(),
     url=URL,
     download_url=f"https://github.com/cmcginty/{NAME}/raw/master/dist/{NAME}-{VERSION}.tar.gz",
-    version=version(),
+    version=VERSION,
 
     license='MIT',
 

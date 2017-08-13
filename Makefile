@@ -1,6 +1,6 @@
-SOURCES := $(wildcard *.py) srm/
-$(info $(SOURCES))
-PYLINT_ARGS :=
+MODULE := srm
+SOURCES := $(wildcard *.py) ${MODULE}/
+PYLINT_ARGS := --ignore=_version.py
 PEP8_ARGS := --max-line-length=100
 
 .PHONY: help
@@ -14,6 +14,7 @@ help:
 	@echo '  lint           Run linters'
 	@echo '  dist           Build PyPi distribution'
 	@echo '  clean          Remove temp files'
+	@echo '  release        Increase v0.0.X and deploy project to GitHub and PyPi'
 	@echo
 	@echo '  Dev Workspace'
 	@echo '  -------------'
@@ -30,13 +31,18 @@ init:
 
 .PHONY: deps
 deps:
-	PYTHONPATH=. pip-compile setup.py --output-file requirements.txt
+	pip-compile setup.py --output-file requirements.txt
 	pip-compile dev-requirements.in
 
 .PHONY: deps-upgrade
 deps-upgrade:
-	PYTHONPATH=. pip-compile -U setup.py --output-file requirements.txt
+	pip-compile -U setup.py --output-file requirements.txt
 	pip-compile -U dev-requirements.in
+
+# NOTE: sponge can be installed from "moreutils" package
+.PHONY: pylintrc
+pylintrc:
+	pylint --generate-rcfile | sponge pylintrc
 
 .PHONY: all
 .DEFAULT_GOAL := all
@@ -44,7 +50,7 @@ all: test lint mypy
 
 .PHONY: test
 test:
-	python -m unittest discover -f
+	python3 -m unittest discover -f
 
 .PHONY: lint
 lint:
@@ -57,24 +63,26 @@ mypy:
 
 .PHONY: clean
 clean:
-	- rm -r dist/ *.egg-info/ .mypy_cache
+	- rm -r dist/ build/ *.egg-info/ .mypy_cache
+
+# remove optional trailing hash "v1.0-N-HASH" -> "v1.0-N"
+git_describe_ver = $(shell git describe --tags | sed -E '/-/ s/(.*)-.*/\1/')
+git_tag_ver      = $(shell git describe --abbrev=0)
+next_patch_ver = $(shell python3 versionbump.py --patch $(call git_tag_ver))
+next_minor_ver = $(shell python3 versionbump.py --minor $(call git_tag_ver))
+next_major_ver = $(shell python3 versionbump.py --major $(call git_tag_ver))
+
+.PHONY: ${MODULE}/_version.py
+${MODULE}/_version.py:
+	echo '__version__ = "$(call git_describe_ver)"' > $@
 
 .PHONY: dist
-dist:
+dist: ${MODULE}/_version.py
 	python3 setup.py check sdist
 
-# NOTE: sponge can be installed from "moreutils" package
-.PHONY: pylintrc
-pylintrc:
-	pylint --generate-rcfile | sponge pylintrc
-
-git_version    = $(shell git describe --abbrev=0)
-next_patch_ver = $(shell python versionbump.py --patch $(call git_version))
-next_minor_ver = $(shell python versionbump.py --minor $(call git_version))
-next_major_ver = $(shell python versionbump.py --major $(call git_version))
-
 .PHONY: release
-release: test lint mypy dist
+release: all
 	git tag -a $(call next_patch_ver)
 	git push origin master --tags
-	python3 setup.py upload
+	$(MAKE) ${MODULE}/_version.py
+	python3 setup.py check sdist upload
