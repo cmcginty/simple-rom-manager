@@ -2,9 +2,17 @@
 Simple ROM Manager - A basic command-line ROM set manager.
 """
 
-from ._version import __version__
+# These values are exported for case when user runs `pydoc srm` or `dir(srm)`.
+# It is generally not a good practice for setup.py to import this module directly.
 
-__long_name__ = 'simple-rom-manager'
-__author__ = 'Patick C. McGinty'
-__email__ = 'casey.mcginty@gmail.com'
-__url__ = 'http://github.com/cmcginty/simple-rom-manager/'
+from srm._version import __version__
+
+from srm.__about__ import (
+    __author__,
+    __copyright__,
+    __email__,
+    __license__,
+    __summary__,
+    __title__,
+    __uri__,
+)

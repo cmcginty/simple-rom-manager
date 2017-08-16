@@ -65,8 +65,8 @@ mypy:
 clean:
 	- rm -r dist/ build/ *.egg-info/ .mypy_cache
 
-# remove optional trailing hash "v1.0-N-HASH" -> "v1.0-N"
-git_describe_ver = $(shell git describe --tags | sed -E '/-/ s/(.*)-.*/\1/')
+# remove optional 'v' and trailing hash "v1.0-N-HASH" -> "v1.0-N"
+git_describe_ver = $(shell git describe --tags | sed -E -e 's/^v//' -e 's/(.*)-.*/\1/')
 git_tag_ver      = $(shell git describe --abbrev=0)
 next_patch_ver = $(shell python3 versionbump.py --patch $(call git_tag_ver))
 next_minor_ver = $(shell python3 versionbump.py --minor $(call git_tag_ver))
@@ -78,11 +78,11 @@ ${MODULE}/_version.py:
 
 .PHONY: dist
 dist: ${MODULE}/_version.py
-	python3 setup.py check sdist
+	python3 setup.py check sdist bdist_wheel --universal
 
 .PHONY: release
 release: all
 	git tag -a $(call next_patch_ver)
+	$(MAKE) ${MODULE}/_version.py dist
+	twine upload dist/*
 	git push origin master --tags
-	$(MAKE) ${MODULE}/_version.py
-	python3 setup.py check sdist upload

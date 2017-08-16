@@ -4,10 +4,9 @@ See:
 https://packaging.python.org/en/latest/distributing.html
 https://github.com/pypa/sampleproject
 """
+# pylint: disable=exec-used, invalid-name
 
 from setuptools import setup, find_packages  # type: ignore
-
-import srm
 
 
 def long_description() -> str:
@@ -18,12 +17,21 @@ def long_description() -> str:
     except Exception:  # pylint: disable=broad-except
         return open('README.md').read()
 
-NAME = srm.__long_name__
-VERSION = srm.__version__
-AUTHOR = srm.__author__
-EMAIL = srm.__email__
-DESCRIPTION = srm.__doc__.strip()
-URL = srm.__url__
+exec_vars = {}  # type: ignore
+
+with open("srm/_version.py") as fp:
+    exec(fp.read(), exec_vars)
+
+with open("srm/__about__.py") as fp:
+    exec(fp.read(), exec_vars)
+
+AUTHOR = exec_vars['__author__']
+DESCRIPTION = exec_vars['__summary__']
+EMAIL = exec_vars['__email__']
+LICENSE = exec_vars['__license__']
+NAME = exec_vars['__pypi_name__']
+URI = exec_vars['__uri__']
+VERSION = exec_vars['__version__']
 
 setup(
     name=NAME,
@@ -31,11 +39,11 @@ setup(
     author_email=EMAIL,
     description=DESCRIPTION,
     long_description=long_description(),
-    url=URL,
+    url=URI,
     download_url=f"https://github.com/cmcginty/{NAME}/raw/master/dist/{NAME}-{VERSION}.tar.gz",
     version=VERSION,
 
-    license='MIT',
+    license=LICENSE,
 
     entry_points={'console_scripts': ['srm = srm.__main__:cli']},
     packages=find_packages(),
