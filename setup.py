@@ -17,6 +17,7 @@ def long_description() -> str:
     except Exception:  # pylint: disable=broad-except
         return open('README.md').read()
 
+
 exec_vars = {}  # type: ignore
 
 with open("srm/_version.py") as fp:

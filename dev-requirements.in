@@ -1,5 +1,5 @@
 mypy
-pep8
+pycodestyle
 pylint
 pypandoc
 twine
