@@ -7,4 +7,5 @@ __pycache__/
 /dist/
 
 # auto-generated
-/srm/_version.py
+/AUTHORS
+/ChangeLog

@@ -1,40 +1,31 @@
 """An auto-increment tool for version strings."""
 
-import sys
-import unittest
+import unittest.mock
+from typing import Any
 
 import click
 from click.testing import CliRunner  # type: ignore
+from pbr.version import VersionInfo, SemanticVersion  # type: ignore
 
-__version__ = '0.1'
-
-MIN_DIGITS = 2
-MAX_DIGITS = 3
+__version__ = '0.2'
 
 
 @click.command()
-@click.argument('version')
-@click.option('--major', 'bump_idx', flag_value=0, help='Increment major number.')
-@click.option('--minor', 'bump_idx', flag_value=1, help='Increment minor number.')
-@click.option('--patch', 'bump_idx', flag_value=2, default=True, help='Increment patch number.')
-def cli(version: str, bump_idx: int) -> None:
-    """Bumps a MAJOR.MINOR.PATCH version string at the specified index location or 'patch' digit. An
-    optional 'v' prefix is allowed and will be included in the output if found."""
-    prefix = version[0] if version[0].isalpha() else ''
-    digits = version.lower().lstrip('v').split('.')
+@click.argument('package')
+@click.option('--major', 'inc_kwargs', flag_value={'major': True}, help='Increment major number.')
+@click.option('--minor', 'inc_kwargs', flag_value={'minor': True}, help='Increment minor number.')
+@click.option('--patch', 'inc_kwargs', flag_value={}, default=True, help='Increment patch number.')
+def cli(package: str, inc_kwargs: dict) -> None:
+    """Bump a MAJOR.MINOR.PATCH version string at the specified index location or 'patch' digit."""
 
-    if len(digits) > MAX_DIGITS:
-        click.secho('ERROR: Too many digits', fg='red', err=True)
-        sys.exit(1)
+    semver = VersionInfo(package).semantic_version()
 
-    digits = (digits + ['0'] * MAX_DIGITS)[:MAX_DIGITS]  # Extend total digits to max.
-    digits[bump_idx] = str(int(digits[bump_idx]) + 1)  # Increment the desired digit.
+    # Pre-decrement a "dev" version to get the real version tuple.
+    if 'dev' in semver.version_tuple():
+        semver = semver.decrement()
 
-    # Zero rightmost digits after bump position.
-    for i in range(bump_idx + 1, MAX_DIGITS):
-        digits[i] = '0'
-    digits = digits[:max(MIN_DIGITS, bump_idx + 1)]  # Trim rightmost digits.
-    click.echo(prefix + '.'.join(digits), nl=False)
+    semver = semver.increment(**inc_kwargs)
+    click.echo(semver.release_string(), nl=False)
 
 
 if __name__ == '__main__':
@@ -47,35 +38,26 @@ class TestCase(unittest.TestCase):
     def setUp(self):  # type: ignore
         self.runner = CliRunner()
 
-    def test_greater_than_max_digits_is_error(self):  # type: ignore
-        result = self.runner.invoke(cli, ['0.0.0.0'])
-        self.assertIn('ERROR', result.output)
-        self.assertEqual(result.exit_code, 1)
-
-    def test_v_prefix_is_kept_in_result(self):  # type: ignore
-        result = self.runner.invoke(cli, ['v0.0.0'])
-        self.assertEqual('v0.0.1', result.output)
-
-    def test_patch_arg(self):  # type: ignore
-        result = self.runner.invoke(cli, ['0.0.0', '--patch'])
+    @unittest.mock.patch.object(VersionInfo, 'semantic_version',
+                                return_value=SemanticVersion(0, 0, 0))
+    def test_patch_arg(self, _: Any) -> None:
+        result = self.runner.invoke(cli, ['dummy', '--patch'])
         self.assertEqual('0.0.1', result.output)
 
-    def test_minor_arg(self):  # type: ignore
-        result = self.runner.invoke(cli, ['0.0.0', '--minor'])
-        self.assertEqual('0.1', result.output)
+    @unittest.mock.patch.object(VersionInfo, 'semantic_version',
+                                return_value=SemanticVersion(0, 0, 0))
+    def test_minor_arg(self, _: Any) -> None:
+        result = self.runner.invoke(cli, ['dummy', '--minor'])
+        self.assertEqual('0.1.0', result.output)
 
-    def test_major_arg(self):  # type: ignore
-        result = self.runner.invoke(cli, ['0.0.0', '--major'])
-        self.assertEqual('1.0', result.output)
+    @unittest.mock.patch.object(VersionInfo, 'semantic_version',
+                                return_value=SemanticVersion(0, 0, 0))
+    def test_major_arg(self, _: Any) -> None:
+        result = self.runner.invoke(cli, ['dummy', '--major'])
+        self.assertEqual('1.0.0', result.output)
 
-    def test_short_ver_with_patch_arg(self):  # type: ignore
-        result = self.runner.invoke(cli, ['1', '--patch'])
-        self.assertEqual('1.0.1', result.output)
-
-    def test_short_ver_with_minor_arg(self):  # type: ignore
-        result = self.runner.invoke(cli, ['1', '--minor'])
-        self.assertEqual('1.1', result.output)
-
-    def test_short_ver_with_major_arg(self):  # type: ignore
-        result = self.runner.invoke(cli, ['1', '--major'])
-        self.assertEqual('2.0', result.output)
+    @unittest.mock.patch.object(VersionInfo, 'semantic_version',
+                                return_value=SemanticVersion(0, 0, 1, None, None, 1))
+    def test_patch_arg_on_dev_ver(self, _: Any) -> None:
+        result = self.runner.invoke(cli, ['dummy', '--patch'])
+        self.assertEqual('0.0.1', result.output)
