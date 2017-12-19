@@ -14,7 +14,11 @@ help:
 	@echo '  lint           Run linters'
 	@echo '  dist           Build PyPi distribution'
 	@echo '  clean          Remove temp files'
+	@echo '  release-dev    Deploy project to GitHub and PyPi'
 	@echo '  release        Increase v0.0.X and deploy project to GitHub and PyPi'
+	@echo '  release-patch  Increase v0.0.X and deploy project to GitHub and PyPi'
+	@echo '  release-minor  Increase v0.X.0 and deploy project to GitHub and PyPi'
+	@echo '  release-major  Increase vX.0.0 and deploy project to GitHub and PyPi'
 	@echo
 	@echo '  Dev Workspace'
 	@echo '  -------------'
@@ -65,20 +69,29 @@ mypy:
 clean:
 	- rm -r dist/ build/ *.egg-info/ .mypy_cache
 
+.PHONY: install
+install:
+	python3 setup.py install
+
+.PHONY: dist
+dist:
+	rm dist/*
+	python3 setup.py check sdist bdist_wheel --universal
+
 next_patch_ver = $(shell python3 versionbump.py --patch $MODULE)
 next_minor_ver = $(shell python3 versionbump.py --minor $MODULE)
 next_major_ver = $(shell python3 versionbump.py --major $MODULE)
 
-.PHONY: dist
-dist:
-	python3 setup.py check sdist bdist_wheel --universal
+release-dev: GIT_TAG_CMD :=
+release-patch: GIT_TAG_CMD = git tag -a $(call next_patch_ver)
+release-minor: GIT_TAG_CMD = git tag -a $(call next_minor_ver)
+release-major: GIT_TAG_CMD = git tag -a $(call next_major_ver)
 
-.PHONY: release
-release: all
-	git tag -a $(call next_patch_ver)
+.PHONY: release-dev release-patch release-minor release-major
+release-dev release-patch release-minor release-major: all dist
+	$(GIT_TAG_CMD)
 	twine upload dist/*
 	git push origin master --tags
 
-.PHONY: install
-install:
-	python3 setup.py install
+.PHONY: release
+release: release-patch
