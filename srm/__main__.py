@@ -17,6 +17,4 @@ def cli() -> None:
 
 
 cli.add_command(status.cli)
-
-if __name__ == '__main__':
-    cli()
+cli(prog_name='srm')
