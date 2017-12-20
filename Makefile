@@ -67,7 +67,7 @@ mypy:
 
 .PHONY: clean
 clean:
-	- rm -r dist/ build/ *.egg-info/ .mypy_cache
+	- rm -r dist/ build/ *.egg-info/ .mypy_cache .eggs/
 
 .PHONY: install
 install:
@@ -75,7 +75,7 @@ install:
 
 .PHONY: dist
 dist:
-	rm dist/*
+	- rm dist/*
 	python3 setup.py check sdist bdist_wheel --universal
 
 next_patch_ver = $(shell python3 versionbump.py --patch $MODULE)
