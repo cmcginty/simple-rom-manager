@@ -1,5 +1,5 @@
 mypy
 pycodestyle
 pylint
-pypandoc
+pytest
 twine

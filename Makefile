@@ -54,7 +54,7 @@ pylintrc:
 
 .PHONY: test
 test:
-	python3 -m unittest discover -f
+	python3 setup.py test
 
 .PHONY: lint
 lint:
