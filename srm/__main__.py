@@ -17,4 +17,4 @@ def cli() -> None:
 
 
 cli.add_command(status.cli)
-cli(prog_name='srm')
+cli(prog_name='srm')  # pylint: disable=unexpected-keyword-arg
