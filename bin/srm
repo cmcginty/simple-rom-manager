@@ -13,4 +13,4 @@ if [ -z ${VIRTUAL_ENV+x} ]; then
 fi
 
 # Load module from project directory
-PYTHONPATH="$MODULE_PATH/.." exec python3 -m $NAME $@
+PYTHONPATH="$MODULE_PATH/.." exec python3 -m $NAME "$@"
