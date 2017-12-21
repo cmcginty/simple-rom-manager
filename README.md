@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/cmcginty/simple-rom-manager.svg?branch=master)](https://travis-ci.org/cmcginty/simple-rom-manager)
+
 # Simple ROM Manager
 
 A command-line tool for verifying game ROMS against published ROM set DAT files. In other words, a simple implementation of tools like [ClrMamePro](https://mamedev.emulab.it/clrmamepro/).
