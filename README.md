@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/cmcginty/simple-rom-manager.svg?branch=master)](https://travis-ci.org/cmcginty/simple-rom-manager)
+[![PyPI version](https://badge.fury.io/py/simple-rom-manager.svg)](https://badge.fury.io/py/simple-rom-manager)
 
 # Simple ROM Manager
 
