@@ -1,5 +1,8 @@
 [![Build Status](https://travis-ci.org/cmcginty/simple-rom-manager.svg?branch=master)](https://travis-ci.org/cmcginty/simple-rom-manager)
-[![PyPI version](https://badge.fury.io/py/simple-rom-manager.svg)](https://badge.fury.io/py/simple-rom-manager)
+[![Status](https://img.shields.io/pypi/status/simple-rom-manager.svg)](https://pypi.python.org/pypi/simple-rom-manager)
+[![Version](https://img.shields.io/pypi/v/simple-rom-manager.svg)](https://pypi.python.org/pypi/simple-rom-manager)
+[![PyVersion](https://img.shields.io/pypi/pyversions/simple-rom-manager.svg)](https://www.python.org/)
+[![License](https://img.shields.io/pypi/l/simple-rom-manager.svg)](https://github.com/cmcginty/simple-rom-manager/blob/master/LICENSE.md)
 
 # Simple ROM Manager
 
