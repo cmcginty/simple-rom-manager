@@ -13,7 +13,7 @@ help:
 	@echo '  test           Run unit/integration tests'
 	@echo '  lint           Run linters'
 	@echo '  dist           Build PyPi distribution'
-	@echo '  clean          Remove temp files'
+	@echo '  clean          Remove temp build files'
 	@echo '  release-dev    Deploy project to GitHub and PyPi'
 	@echo '  release        Increase v0.0.X and deploy project to GitHub and PyPi'
 	@echo '  release-patch  Increase v0.0.X and deploy project to GitHub and PyPi'
@@ -67,16 +67,16 @@ mypy:
 
 .PHONY: clean
 clean:
-	- rm -r dist/ build/ *.egg-info/ .mypy_cache .eggs/
+	python3 setup.py clean --all
+	- rm -r *.egg-info/ .eggs/ .mypy_cache/
 
 .PHONY: install
 install:
 	python3 setup.py install
 
 .PHONY: dist
-dist:
-	- rm dist/*
-	python3 setup.py check sdist bdist_wheel --universal
+dist: clean
+	python3 setup.py check sdist bdist_wheel
 
 next_patch_ver = $(shell python3 versionbump.py --patch $MODULE)
 next_minor_ver = $(shell python3 versionbump.py --minor $MODULE)
