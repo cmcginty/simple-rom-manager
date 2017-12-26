@@ -39,12 +39,12 @@ init:
 
 .PHONY: deps
 deps:
-	pip-compile setup.py --output-file requirements.txt
+	pip-compile requirements.in
 	pip-compile dev-requirements.in
 
 .PHONY: deps-upgrade
 deps-upgrade:
-	pip-compile -U setup.py --output-file requirements.txt
+	pip-compile -U requirements.in
 	pip-compile -U dev-requirements.in
 
 # NOTE: sponge can be installed from "moreutils" package
