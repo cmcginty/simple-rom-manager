@@ -7,14 +7,15 @@ setup.py.  Ex:
 
 import click
 
-from . import __version__, status
+from . import __version__, cli
 
 
 @click.group()
 @click.version_option(__version__)
-def cli() -> None:
-    """Main command-line entry method."""
+def main() -> None:
+    """Simple ROM Manager - A basic command-line ROM set manager."""
 
 
-cli.add_command(status.cli)
-cli(prog_name='srm')  # pylint: disable=unexpected-keyword-arg
+main.add_command(cli.init)
+main.add_command(cli.status)
+main(prog_name='srm')  # pylint: disable=unexpected-keyword-arg
