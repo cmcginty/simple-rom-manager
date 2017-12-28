@@ -68,7 +68,7 @@ mypy:
 .PHONY: clean
 clean:
 	python3 setup.py clean --all
-	- rm -r *.egg-info/ .eggs/ .mypy_cache/
+	- rm -r *.egg-info/ .eggs/ .mypy_cache/ dist/
 
 .PHONY: install
 install:
