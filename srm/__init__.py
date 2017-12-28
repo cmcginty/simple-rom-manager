@@ -1,5 +1,5 @@
 """
-Simple ROM Manager - A basic command-line ROM set manager.
+Simple ROM Manager - A basic command-line ROM set manager
 """
 
 # These values are exported for case when user runs `pydoc srm` or `dir(srm)`.

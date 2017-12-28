@@ -14,7 +14,7 @@ For users familiar with ROM management, the goal of this tool is to implement so
 
 There are a few groups that publish a collection of metadata for ROMs used in legacy gaming systems and arcades. In some cases the data is simply a "best-of" list for defining complete ROM set. For emulators like [MAME](https://github.com/mamedev/mame/releases) ([split](https://github.com/libretro/fbalpha/tree/master/dats)) or [FBA](https://github.com/libretro/fbalpha/tree/master/dats), a ROM may not work correctly when used with older versions of a ROM.
 
-[No-Intro](http://no-intro.org/) is one groups that publish ROM sets for many gaming consoles on their [Dat-O-Matic](http://datomatic.no-intro.org/) site.
+[No-Intro](http://no-intro.org/) is one group that publish ROM sets for many gaming consoles on their [Dat-O-Matic](http://datomatic.no-intro.org/) site.
 
 Simple ROM Manager (SRM) can be used to quickly manage ROMs into a collection by confirming ROMs that are _good_, _bad_, and _missing_ and by renaming and/or re-packaging the files.
 
@@ -24,7 +24,7 @@ Simple ROM Manager (SRM) can be used to quickly manage ROMs into a collection by
 
 ## Usage
 
-Setup a top-level directory all of the ROMs referenced inside of a DAT file.
+Setup a top-level directory containing all of the ROMs referenced inside of a DAT file.
 
 ```
 $ cd ~/MyRoms/System
