@@ -2,4 +2,4 @@ language: python
 python:
    - "3.6"
    - "nightly"
-script: pytest
+script: make init test
