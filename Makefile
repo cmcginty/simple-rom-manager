@@ -82,10 +82,9 @@ next_patch_ver = $(shell python3 versionbump.py --patch $MODULE)
 next_minor_ver = $(shell python3 versionbump.py --minor $MODULE)
 next_major_ver = $(shell python3 versionbump.py --major $MODULE)
 
-release-dev: GIT_TAG_CMD :=
-release-patch: GIT_TAG_CMD = git tag -a $(call next_patch_ver)
-release-minor: GIT_TAG_CMD = git tag -a $(call next_minor_ver)
-release-major: GIT_TAG_CMD = git tag -a $(call next_major_ver)
+release-patch: GIT_TAG_CMD = git tag -a $(next_patch_ver)
+release-minor: GIT_TAG_CMD = git tag -a $(next_minor_ver)
+release-major: GIT_TAG_CMD = git tag -a $(next_major_ver)
 
 .PHONY: release-dev release-patch release-minor release-major
 release-dev release-patch release-minor release-major: all dist
