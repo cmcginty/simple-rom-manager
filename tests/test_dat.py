@@ -10,19 +10,6 @@ from srm.dat import DatafileXml
 
 PATH = sentinel.PATH
 
-
-def test_load_sample_data():
-    with patch('xml.etree.ElementTree.open', mock_open(read_data=DAT_01)) as mock_file:
-        dat = DatafileXml(PATH)
-        mock_file.assert_called_with(PATH, ANY)
-        assert dat.name == 'FB Alpha - SuprGrafx Games'
-        assert dat.description == 'FB Alpha v0.2.97.42 SuprGrafx Games'
-        assert dat.version == '0.2.97.42'
-        assert dat.author == 'FB Alpha'
-        assert dat.homepage == 'https://www.fbalpha.com/'
-        assert dat.url == 'https://www.fbalpha.com/'
-
-
 DAT_01 = """\
 <?xml version="1.0"?>
 <!DOCTYPE datafile PUBLIC "-//FB Alpha//DTD ROM Management Datafile//EN" "http://www.logiqx.com/Dats/datafile.dtd">
@@ -131,3 +118,44 @@ DAT_03 = """\
     </game>
 </datafile>
 """
+
+
+@pytest.mark.parametrize("test_data,expected", [
+    (DAT_01,
+     dict(
+         name='FB Alpha - SuprGrafx Games',
+         description='FB Alpha v0.2.97.42 SuprGrafx Games',
+         version='0.2.97.42',
+         author='FB Alpha',
+         homepage='https://www.fbalpha.com/',
+         url='https://www.fbalpha.com/',
+     )),
+    (DAT_02,
+     dict(
+         name='FB Alpha - Arcade Games',
+         description='FB Alpha v0.2.97.42 Arcade Games',
+         version='0.2.97.42',
+         author='FB Alpha',
+         homepage='https://www.fbalpha.com/',
+         url='https://www.fbalpha.com/',
+     )),
+    (DAT_03,
+     dict(
+         name='Nintendo - Game Boy',
+         description='Nintendo - Game Boy',
+         version='20171226-085946',
+         author='C. V. Reynolds, Densetsu, xuom2',
+         homepage='No-Intro',
+         url='http://www.no-intro.org',
+     )),
+])
+def test_load_sample_data(test_data, expected):
+    with patch('xml.etree.ElementTree.open', mock_open(read_data=test_data)) as mock_file:
+        dat = DatafileXml(PATH)
+        mock_file.assert_called_with(PATH, ANY)
+        assert dat.name == expected['name']
+        assert dat.description == expected['description']
+        assert dat.version == expected['version']
+        assert dat.author == expected['author']
+        assert dat.homepage == expected['homepage']
+        assert dat.url == expected['url']
