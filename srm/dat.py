@@ -59,8 +59,8 @@ class DatafileXml:
     @property
     def games(self) -> Iterable['Game']:
         """Iterable of <game> tag elements from DAT."""
-        roms = {ROM.from_xml(r) for r in self._root.iter('rom')}
         for game in self._root.iter('game'):
+            roms = frozenset({ROM.from_xml(r) for r in game.iter('rom')})
             yield Game.from_xml(game, roms=roms)
 
     # @boltons.cacheutils.cachedproperty

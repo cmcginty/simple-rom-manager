@@ -241,10 +241,13 @@ def test_load_header_from_dat(test_data, expected):
     (DAT_03['xml'], DAT_03['games']),
 ])
 def test_load_games_from_dat(test_data, expected):
+    found_games = set()
     with patch('xml.etree.ElementTree.open', mock_open(read_data=test_data)) as mock_file:
         dat = DatafileXml(PATH)
     for game in dat.games:
         assert game in expected
+        assert game not in found_games
+        found_games.add(game)
 
 
 @pytest.mark.parametrize("test_data,expected", [
@@ -253,8 +256,11 @@ def test_load_games_from_dat(test_data, expected):
     (DAT_03['xml'], DAT_03['roms']),
 ])
 def test_load_roms_from_dat(test_data, expected):
+    found_roms = set()
     with patch('xml.etree.ElementTree.open', mock_open(read_data=test_data)) as mock_file:
         dat = DatafileXml(PATH)
         for game in dat.games:
             for rom in game.roms:
                 assert rom in expected
+                assert rom not in found_roms
+                found_roms.add(rom)
