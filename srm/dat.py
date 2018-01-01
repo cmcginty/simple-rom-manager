@@ -2,14 +2,12 @@
 Load and query XML data that describes ROM game collections.
 """
 
-from typing import Set, Any
+from typing import Any, Iterable, Set
 from xml.etree import ElementTree
 
 import attr  # type: ignore
 
 # import boltons.cacheutils  # type: ignore
-
-# pylint: disable=missing-docstring
 
 
 class DatafileXml:
@@ -58,6 +56,12 @@ class DatafileXml:
         """DAT <header><url> field."""
         return str(self._header.url)
 
+    @property
+    def games(self) -> Iterable['Game']:
+        """Iterable of <game> tag elements from DAT."""
+        for game in self._root.iter('game'):
+            yield Game.from_xml(game, roms=[])
+
     # @boltons.cacheutils.cachedproperty
     # def roms(self) -> Set[ROM]:
     #     roms = []
@@ -96,11 +100,20 @@ class XmlToAttrs:  # pylint: disable=too-few-public-methods
     """Helper to generically map XML fields from an element and create an attrs class."""
 
     @classmethod
-    def from_xml(cls, header: ElementTree.Element) -> Any:
-        """Dynamically extract attrs fields from XML <header> and create new cls() instance."""
-        fields = (i.name for i in iter(attr.fields(cls)))
-        xml_el = (header.find(i) for i in fields)  # pylint: disable=no-member
-        return cls(**{i.tag: i.text for i in xml_el if i is not None})  # type: ignore
+    def from_xml(cls, root: ElementTree.Element, **cls_kwargs) -> Any:
+        """
+        Dynamically extract attrs fields from XML root element attributes and sub-tags to initialize
+        a new cls() instance.
+
+        :param root: XML element to extract class fields from.
+        :param cls_kwargs: Additional kwargs passed into the class constructor.
+        """
+        # Create a combined dict of root attributes and sub-tags.
+        cls_kwargs.update(root.attrib)
+        cls_kwargs.update({i.tag: i.text or '' for i in root.iter() if i is not root})
+        # Init the class using only the expected fields defined by attrs declarations.
+        init_kwds = list(i.name for i in iter(attr.fields(cls)))
+        return cls(**{k: v for k, v in cls_kwargs.items() if k in init_kwds})  # type: ignore
 
 
 @attr.s(frozen=True, slots=True, auto_attribs=True)  # pylint: disable=too-few-public-methods

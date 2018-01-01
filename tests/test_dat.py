@@ -2,7 +2,8 @@
 Test cases for DAT XML import and processing.
 """
 
-from unittest.mock import mock_open, patch, sentinel, ANY
+from itertools import zip_longest
+from unittest.mock import ANY, mock_open, patch, sentinel
 
 import pytest
 
@@ -47,6 +48,22 @@ DAT_01 = dict(
         homepage='https://www.fbalpha.com/',
         url='https://www.fbalpha.com/',
     ),
+    games=[
+        dict(
+            name="1941",
+            description="1941 - Counter Attack",
+            year="1991",
+            manufacturer="Hudson",
+            cloneof="",
+            romof=""),
+        dict(
+            name="aldynes",
+            description="Aldynes",
+            year="1991",
+            manufacturer="Hudson",
+            cloneof="",
+            romof=""),
+    ],
 )
 
 DAT_02 = dict(
@@ -106,6 +123,22 @@ DAT_02 = dict(
         homepage='https://www.fbalpha.com/',
         url='https://www.fbalpha.com/',
     ),
+    games=[
+        dict(
+            name="gtmrb",
+            description="1000 Miglia: Great 1000 Miles Rally (94/05/26)",
+            year="1994",
+            manufacturer="Kaneko",
+            cloneof="gtmr",
+            romof="gtmr"),
+        dict(
+            name="gtmr",
+            description="1000 Miglia: Great 1000 Miles Rally (94/07/18)",
+            year="1994",
+            manufacturer="Kaneko",
+            cloneof="",
+            romof=""),
+    ],
 )
 
 DAT_03 = dict(
@@ -125,18 +158,6 @@ DAT_03 = dict(
         <description>Battletoads (Japan)</description>
         <rom name="Battletoads (Japan).gb" size="131072" crc="331CF7DE" md5="3D57E0391C8191C105A4F015A0C103E9" sha1="666ED5D34F508C8805A67F4400FC01A1F2817E03"/>
     </game>
-    <game name="Battletoads (USA, Europe)">
-        <description>Battletoads (USA, Europe)</description>
-        <rom name="Battletoads (USA, Europe).gb" size="131072" crc="B0C3361B" md5="6D24C94D3ACD89B4B703F7BD2A504833" sha1="BA839BEA8F76BF955E3EDF7083D2CBE780244ADD" status="verified"/>
-    </game>
-    <game name="Battletoads in Ragnarok's World (Europe)">
-        <description>Battletoads in Ragnarok's World (Europe)</description>
-        <rom name="Battletoads in Ragnarok's World (Europe).gb" size="131072" crc="7FFC34EA" md5="BC76C0516129C6791E4087F93F5D3C99" sha1="1852BD23644E28109B66FA937053C689A63F7729" status="verified"/>
-    </game>
-    <game name="Battletoads in Ragnarok's World (USA)">
-        <description>Battletoads in Ragnarok's World (USA)</description>
-        <rom name="Battletoads in Ragnarok's World (USA).gb" size="131072" crc="CE316C68" md5="4866EA7BDAA92C6986D4847209EBBD20" sha1="3DF1384E699B91689F015D7ABA65AB42410E24F5"/>
-    </game>
 </datafile>
 """,
     header=dict(
@@ -147,6 +168,15 @@ DAT_03 = dict(
         homepage='No-Intro',
         url='http://www.no-intro.org',
     ),
+    games=[
+        dict(
+            name="Battletoads (Japan)",
+            description="Battletoads (Japan)",
+            year="",
+            manufacturer="",
+            cloneof="",
+            romof=""),
+    ],
 )
 
 
@@ -155,7 +185,7 @@ DAT_03 = dict(
     (DAT_02['xml'], DAT_02['header']),
     (DAT_03['xml'], DAT_03['header']),
 ])
-def test_load_sample_data(test_data, expected):
+def test_load_header_from_dat(test_data, expected):
     with patch('xml.etree.ElementTree.open', mock_open(read_data=test_data)) as mock_file:
         dat = DatafileXml(PATH)
 
@@ -166,3 +196,20 @@ def test_load_sample_data(test_data, expected):
     assert dat.author == expected['author']
     assert dat.homepage == expected['homepage']
     assert dat.url == expected['url']
+
+
+@pytest.mark.parametrize("test_data,expected", [
+    (DAT_01['xml'], DAT_01['games']),
+    (DAT_02['xml'], DAT_02['games']),
+    (DAT_03['xml'], DAT_03['games']),
+])
+def test_load_games_from_dat(test_data, expected):
+    with patch('xml.etree.ElementTree.open', mock_open(read_data=test_data)) as mock_file:
+        dat = DatafileXml(PATH)
+    for game, e in zip_longest(dat.games, expected):
+        assert game.name == e['name']
+        assert game.description == e['description']
+        assert game.year == e['year']
+        assert game.manufacturer == e['manufacturer']
+        assert game.cloneof == e['cloneof']
+        assert game.romof == e['romof']
