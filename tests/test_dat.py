@@ -7,7 +7,7 @@ from unittest.mock import ANY, mock_open, patch, sentinel
 
 import pytest
 
-from srm.dat import DatafileXml
+from srm.dat import ROM, DatafileXml, Game
 
 PATH = sentinel.PATH
 
@@ -49,20 +49,24 @@ DAT_01 = dict(
         url='https://www.fbalpha.com/',
     ),
     games=[
-        dict(
+        Game(
             name="1941",
             description="1941 - Counter Attack",
             year="1991",
             manufacturer="Hudson",
-            cloneof="",
-            romof=""),
-        dict(
+            roms=ANY,
+        ),
+        Game(
             name="aldynes",
             description="Aldynes",
             year="1991",
             manufacturer="Hudson",
-            cloneof="",
-            romof=""),
+            roms=ANY,
+        ),
+    ],
+    roms=[
+        ROM(name="1941 - counter attack (japan).pce", size="1048576", crc="8c4588e2"),
+        ROM(name="aldynes (japan).pce", size="1048576", crc="4c2126b0"),
     ],
 )
 
@@ -124,20 +128,48 @@ DAT_02 = dict(
         url='https://www.fbalpha.com/',
     ),
     games=[
-        dict(
+        Game(
             name="gtmrb",
             description="1000 Miglia: Great 1000 Miles Rally (94/05/26)",
             year="1994",
             manufacturer="Kaneko",
             cloneof="gtmr",
-            romof="gtmr"),
-        dict(
+            romof="gtmr",
+            roms=ANY,
+        ),
+        Game(
             name="gtmr",
             description="1000 Miglia: Great 1000 Miles Rally (94/07/18)",
             year="1994",
             manufacturer="Kaneko",
             cloneof="",
-            romof=""),
+            romof="",
+            roms=ANY,
+        ),
+    ],
+    roms=[
+        ROM(name="mm-100-401-e0.bin", merge="mm-100-401-e0.bin", size="1048576", crc="b9cbfbee"),
+        ROM(name="mm-100-401-e0.bin", size="1048576", crc="b9cbfbee"),
+        ROM(name="mm-200-402-s0.bin", merge="mm-200-402-s0.bin", size="2097152", crc="c0ab3efc"),
+        ROM(name="mm-200-402-s0.bin", size="2097152", crc="c0ab3efc"),
+        ROM(name="mm-201-403-s1.bin", merge="mm-201-403-s1.bin", size="2097152", crc="cf6b23dc"),
+        ROM(name="mm-201-403-s1.bin", size="2097152", crc="cf6b23dc"),
+        ROM(name="mm-202-404-s2.bin", merge="mm-202-404-s2.bin", size="2097152", crc="8f27f5d3"),
+        ROM(name="mm-202-404-s2.bin", size="2097152", crc="8f27f5d3"),
+        ROM(name="mm-203-405-s3.bin", merge="mm-203-405-s3.bin", size="524288", crc="e9747c8c"),
+        ROM(name="mm-203-405-s3.bin", size="524288", crc="e9747c8c"),
+        ROM(name="mm-300-406-a0.bin", merge="mm-300-406-a0.bin", size="2097152", crc="b15f6b7f"),
+        ROM(name="mm-300-406-a0.bin", size="2097152", crc="b15f6b7f"),
+        ROM(name="mmd0x1.u124", size="131072", crc="3d7cb329"),
+        ROM(name="mmd0x2.u124.bin", size="131072", crc="3d7cb329"),
+        ROM(name="mmp0x1.u514", size="524288", crc="6c163f12"),
+        ROM(name="mmp1x1.u513", size="524288", crc="424dc7e1"),
+        ROM(name="mms0x1.u29", size="131072", crc="bd22b7d2"),
+        ROM(name="mms0x2.u29.bin", size="131072", crc="bd22b7d2"),
+        ROM(name="mms1x1.u30", size="131072", crc="9463825c"),
+        ROM(name="mms1x2.u30.bin", size="131072", crc="b42b426f"),
+        ROM(name="u1.bin", size="524288", crc="6238790a"),
+        ROM(name="u2.bin", size="524288", crc="031799f7"),
     ],
 )
 
@@ -169,13 +201,18 @@ DAT_03 = dict(
         url='http://www.no-intro.org',
     ),
     games=[
-        dict(
+        Game(
             name="Battletoads (Japan)",
             description="Battletoads (Japan)",
-            year="",
-            manufacturer="",
-            cloneof="",
-            romof=""),
+            roms=ANY,
+        ),
+    ],
+    roms=[
+        ROM(name="Battletoads (Japan).gb",
+            size="131072",
+            crc="331CF7DE",
+            md5="3D57E0391C8191C105A4F015A0C103E9",
+            sha1="666ED5D34F508C8805A67F4400FC01A1F2817E03")
     ],
 )
 
@@ -206,10 +243,18 @@ def test_load_header_from_dat(test_data, expected):
 def test_load_games_from_dat(test_data, expected):
     with patch('xml.etree.ElementTree.open', mock_open(read_data=test_data)) as mock_file:
         dat = DatafileXml(PATH)
-    for game, e in zip_longest(dat.games, expected):
-        assert game.name == e['name']
-        assert game.description == e['description']
-        assert game.year == e['year']
-        assert game.manufacturer == e['manufacturer']
-        assert game.cloneof == e['cloneof']
-        assert game.romof == e['romof']
+    for game in dat.games:
+        assert game in expected
+
+
+@pytest.mark.parametrize("test_data,expected", [
+    (DAT_01['xml'], DAT_01['roms']),
+    (DAT_02['xml'], DAT_02['roms']),
+    (DAT_03['xml'], DAT_03['roms']),
+])
+def test_load_roms_from_dat(test_data, expected):
+    with patch('xml.etree.ElementTree.open', mock_open(read_data=test_data)) as mock_file:
+        dat = DatafileXml(PATH)
+        for game in dat.games:
+            for rom in game.roms:
+                assert rom in expected

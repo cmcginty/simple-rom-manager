@@ -59,26 +59,10 @@ class DatafileXml:
     @property
     def games(self) -> Iterable['Game']:
         """Iterable of <game> tag elements from DAT."""
+        roms = {ROM.from_xml(r) for r in self._root.iter('rom')}
         for game in self._root.iter('game'):
-            yield Game.from_xml(game, roms=[])
+            yield Game.from_xml(game, roms=roms)
 
-    # @boltons.cacheutils.cachedproperty
-    # def roms(self) -> Set[ROM]:
-    #     roms = []
-    #     for game in self._root.findall('game'):
-    #         description = game.find('description')
-    #         rom = game.find('rom')
-    #         roms.append(
-    #             ROM(
-    #                 name=game.get('name'),
-    #                 description=description.text,
-    #                 file=rom.get('name'),
-    #                 size=rom.get('size'),
-    #                 crc=rom.get('crc'),
-    #                 md5=rom.get('md5'),
-    #             ))
-    #     return set(roms)
-    #
     # @boltons.cacheutils.cachedproperty
     # def crcs(self) -> Set[str]:
     #     return set(r.crc for r in self.roms)
@@ -100,7 +84,7 @@ class XmlToAttrs:  # pylint: disable=too-few-public-methods
     """Helper to generically map XML fields from an element and create an attrs class."""
 
     @classmethod
-    def from_xml(cls, root: ElementTree.Element, **cls_kwargs) -> Any:
+    def from_xml(cls, root: ElementTree.Element, **cls_kwargs: Any) -> Any:
         """
         Dynamically extract attrs fields from XML root element attributes and sub-tags to initialize
         a new cls() instance.
@@ -133,7 +117,7 @@ class ROM(XmlToAttrs):
     """ROM object defined for one or more Games."""
     name: str  # file name
     size: int  # bytes
-    merge: str = ''  # merge name
+    merge: str = ''  # merge file name, indicates file was merged from "cloneof"
     crc: str = ''
     md5: str = ''
     sha1: str = ''
