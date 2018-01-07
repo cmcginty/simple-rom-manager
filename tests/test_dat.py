@@ -12,6 +12,7 @@ from srm.dat import ROM, DatafileXml, Game
 PATH = sentinel.PATH
 
 DAT_01 = dict(
+    id='final-burn-simple',
     xml="""\
 <?xml version="1.0"?>
 <!DOCTYPE datafile PUBLIC "-//FB Alpha//DTD ROM Management Datafile//EN" "http://www.logiqx.com/Dats/datafile.dtd">
@@ -71,6 +72,7 @@ DAT_01 = dict(
 )
 
 DAT_02 = dict(
+    id='final-burn-clone',
     xml="""\
 <?xml version="1.0"?>
 <!DOCTYPE datafile PUBLIC "-//FB Alpha//DTD ROM Management Datafile//EN" "http://www.logiqx.com/Dats/datafile.dtd">
@@ -174,6 +176,7 @@ DAT_02 = dict(
 )
 
 DAT_03 = dict(
+    id='no-intro',
     xml="""\
 <?xml version="1.0"?>
 <!DOCTYPE datafile PUBLIC "-//Logiqx//DTD ROM Management Datafile//EN" "http://www.logiqx.com/Dats/datafile.dtd">
@@ -217,50 +220,50 @@ DAT_03 = dict(
 )
 
 
-@pytest.mark.parametrize("test_data,expected", [
-    (DAT_01['xml'], DAT_01['header']),
-    (DAT_02['xml'], DAT_02['header']),
-    (DAT_03['xml'], DAT_03['header']),
+@pytest.mark.parametrize("xml,header", [
+    pytest.param(DAT_01['xml'], DAT_01['header'], id=DAT_01['id']),
+    pytest.param(DAT_02['xml'], DAT_02['header'], id=DAT_02['id']),
+    pytest.param(DAT_03['xml'], DAT_03['header'], id=DAT_03['id']),
 ])
-def test_load_header_from_dat(test_data, expected):
-    with patch('xml.etree.ElementTree.open', mock_open(read_data=test_data)) as mock_file:
+def test_load_header_from_dat(xml, header):
+    with patch('xml.etree.ElementTree.open', mock_open(read_data=xml)) as mock_file:
         dat = DatafileXml(PATH)
 
     mock_file.assert_called_with(PATH, ANY)
-    assert dat.name == expected['name']
-    assert dat.description == expected['description']
-    assert dat.version == expected['version']
-    assert dat.author == expected['author']
-    assert dat.homepage == expected['homepage']
-    assert dat.url == expected['url']
+    assert dat.name == header['name']
+    assert dat.description == header['description']
+    assert dat.version == header['version']
+    assert dat.author == header['author']
+    assert dat.homepage == header['homepage']
+    assert dat.url == header['url']
 
 
-@pytest.mark.parametrize("test_data,expected", [
-    (DAT_01['xml'], DAT_01['games']),
-    (DAT_02['xml'], DAT_02['games']),
-    (DAT_03['xml'], DAT_03['games']),
+@pytest.mark.parametrize("xml,exp_games", [
+    pytest.param(DAT_01['xml'], DAT_01['games'], id=DAT_01['id']),
+    pytest.param(DAT_02['xml'], DAT_02['games'], id=DAT_02['id']),
+    pytest.param(DAT_03['xml'], DAT_03['games'], id=DAT_03['id']),
 ])
-def test_load_games_from_dat(test_data, expected):
+def test_load_games_from_dat(xml, exp_games):
     found_games = set()
-    with patch('xml.etree.ElementTree.open', mock_open(read_data=test_data)) as mock_file:
+    with patch('xml.etree.ElementTree.open', mock_open(read_data=xml)) as mock_file:
         dat = DatafileXml(PATH)
     for game in dat.games:
-        assert game in expected
+        assert game in exp_games
         assert game not in found_games
         found_games.add(game)
 
 
-@pytest.mark.parametrize("test_data,expected", [
-    (DAT_01['xml'], DAT_01['roms']),
-    (DAT_02['xml'], DAT_02['roms']),
-    (DAT_03['xml'], DAT_03['roms']),
+@pytest.mark.parametrize("xml,exp_roms", [
+    pytest.param(DAT_01['xml'], DAT_01['roms'], id=DAT_01['id']),
+    pytest.param(DAT_02['xml'], DAT_02['roms'], id=DAT_02['id']),
+    pytest.param(DAT_03['xml'], DAT_03['roms'], id=DAT_03['id']),
 ])
-def test_load_roms_from_dat(test_data, expected):
+def test_load_roms_from_dat(xml, exp_roms):
     found_roms = set()
-    with patch('xml.etree.ElementTree.open', mock_open(read_data=test_data)) as mock_file:
+    with patch('xml.etree.ElementTree.open', mock_open(read_data=xml)) as mock_file:
         dat = DatafileXml(PATH)
         for game in dat.games:
             for rom in game.roms:
-                assert rom in expected
+                assert rom in exp_roms
                 assert rom not in found_roms
                 found_roms.add(rom)
