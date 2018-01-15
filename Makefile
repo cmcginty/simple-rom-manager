@@ -87,8 +87,9 @@ release-minor: GIT_TAG_CMD = git tag -a $(next_minor_ver)
 release-major: GIT_TAG_CMD = git tag -a $(next_major_ver)
 
 .PHONY: release-dev release-patch release-minor release-major
-release-dev release-patch release-minor release-major: all dist
+release-dev release-patch release-minor release-major: all
 	$(GIT_TAG_CMD)
+	$(MAKE) dist
 	twine upload dist/*
 	git push origin master --tags
 
