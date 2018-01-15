@@ -1,11 +1,11 @@
 import os
 import tempfile
-from unittest.mock import sentinel, patch
+from unittest.mock import patch, sentinel
 
 import pytest
 import toml
 
-from srm.config import Conf, GlobalConf, LocalConf
+from srm.config import ChainConf, Conf, GlobalConf, LocalConf
 
 # value for testing set/get
 V = sentinel.V
@@ -92,36 +92,39 @@ def test_load_config():
         assert c['key2'] == 2
 
 
-def test_dump_local_config():
+def test_dump_chain_config():
     with tempfile.NamedTemporaryFile() as t:
-        c = LocalConf(t.name)
+        c = ChainConf(Conf(t.name))
         c['key'] = V
         c.dump()
         with open(t.name) as f:
             assert f.readline() == 'key = sentinel.V\n'
 
 
-def test_load_local_config():
+def test_load_chain_config():
     with tempfile.NamedTemporaryFile() as t:
         with open(t.name, 'w+') as f:
             toml.dump({'key1': 1, 'key2': 2}, f)
-        c = LocalConf(t.name)
+        c = ChainConf(Conf(t.name))
         c.load()
         assert 'key2' in c
         assert c['key2'] == 2
 
 
-@patch('srm.config.GlobalConf', autospec=True)
-def test_get_global_key_from_local_config(gconf_cls):
+def test_get_global_key_from_chain_config():
     with tempfile.NamedTemporaryFile() as global_path:
         # set a key/value into mock global config
         gconf = Conf(global_path.name)
-        gconf_cls.return_value = gconf
         gconf['key'] = 1
         gconf.dump()
         # test
         with tempfile.NamedTemporaryFile() as local_path:
-            c = LocalConf(local_path.name)
+            c = ChainConf(Conf(local_path.name), gconf)
             c.load()
             assert 'key' in c
             assert c['key'] == 1
+
+def test_chain_config_exists():
+    with tempfile.NamedTemporaryFile() as t:
+        c = ChainConf(Conf(t.name))
+        assert c.exists()

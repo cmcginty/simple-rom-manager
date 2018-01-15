@@ -15,3 +15,4 @@ def test_path_calculates_hashes():
         assert p.crc() == '414fa339'
         assert p.md5() == '9e107d9d372bb6826bd81d3542a419d6'
         assert p.sha1() == '2fd4e1c67a2d28fced849ee1bb76e7391b93eb12'
+        p.unlink()

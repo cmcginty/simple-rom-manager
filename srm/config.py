@@ -2,10 +2,10 @@
 Manage global and local configuration data.
 """
 
+import collections
 import os
-from collections import abc
 from typing import Dict  # pylint: disable=unused-import
-from typing import Any, Iterator, List, Optional, Set, Tuple
+from typing import Any, Iterator, List, Optional, Set, Tuple, cast
 
 import toml  # type: ignore
 from boltons import funcutils, iterutils  # type: ignore
@@ -18,7 +18,7 @@ _GLOBAL_PATH = "~/.srmconfig"
 _GLOBAL_KEYS = {'my.temp.key'}
 
 
-class Conf(abc.MutableMapping):
+class Conf(collections.abc.MutableMapping):
     """Config store, backed by a TOML formatted file."""
 
     def __init__(self, path: str, valid_keys: Optional[Set[str]] = None) -> None:
@@ -87,30 +87,28 @@ class Conf(abc.MutableMapping):
         return tables, tables.pop(-1)
 
 
+class ChainConf(collections.ChainMap):
+    """A nested collection of dict's that also also supports the Conf() public AP."""
+
+    def exists(self) -> bool:
+        """Return result of c.exists() where c is the first Conf instance in the chain."""
+        conf = iterutils.first(self.maps, key=lambda x: isinstance(x, Conf))
+        return cast(Conf, conf).exists() if conf is not None else False
+
+    def load(self, create: bool = False) -> None:
+        """See Conf.load()."""
+        for conf in filter(lambda x: isinstance(x, Conf), self.maps):
+            cast(Conf, conf).load(create)
+
+    def dump(self) -> None:
+        """See Dump.load()."""
+        for conf in filter(lambda x: isinstance(x, Conf), self.maps):
+            cast(Conf, conf).dump()
+
+
 # Callable that will always return the global config.
 GlobalConf = funcutils.partial(Conf, _GLOBAL_PATH, _GLOBAL_KEYS)  # pylint: disable=invalid-name
 
-
-class LocalConf(Conf):
-    """
-    Load and store keys to a local TOML config file. When a key is not in the local configuration,
-    defer to the global TOML file.
-    """
-
-    def __init__(self, path: Optional[str] = None) -> None:
-        super().__init__(path or _LOCAL_PATH)
-        self._global = GlobalConf()
-
-    def load(self, create: bool = False) -> None:
-        super().load(create)
-        self._global.load(create)
-
-    def dump(self) -> None:
-        super().dump()
-        self._global.dump()
-
-    def __getitem__(self, k: str) -> Any:
-        try:
-            return super().__getitem__(k)
-        except KeyError:
-            return self._global.__getitem__(k)
+# Callable that will always return the default local config.
+LocalConf = (  # pylint: disable=invalid-name
+    funcutils.partial(ChainConf, Conf(_LOCAL_PATH), GlobalConf()))
