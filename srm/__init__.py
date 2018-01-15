@@ -9,4 +9,4 @@ import pbr.version  # type: ignore
 
 __author__ = 'Patick C. McGinty'
 __email__ = 'casey.mcginty@gmail.com'
-__version__ = pbr.version.VersionInfo('srm').release_string()
+__version__ = pbr.version.VersionInfo('simple_rom_manager').release_string()
